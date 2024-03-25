@@ -1,0 +1,21 @@
+lui $4, 0xFFF0
+#addiu $4, $4, 0x00FF
+lui $5, 0x00FF
+#addiu $5, $5, 0xFF00
+
+nor $6, $4, $5
+
+#lw $5, 0x00FFFF00
+
+#lui $4, 0xFA04
+# $4, $0, 0x12D9
+
+#li $4, 0xFA0412D9
+#sw $4, 0x0300
+
+#lb $8, 0x0300
+#lb $8, 0x0301
+#lb $8, 0x0302
+#lb $8, 0x0303
+
+lab1:	j lab1

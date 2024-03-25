@@ -21,22 +21,24 @@ endmodule
 
 
 module alu(input      [31:0] a, b, 
-           input      [2:0]  alucont, 
+           input      [3:0]  alucont, 
            output reg [31:0] result,
            output            zero);
 
   wire [31:0] b2, sum, slt;
 
-  assign b2 = alucont[2] ? ~b:b; 
-  assign sum = a + b2 + alucont[2];
+  assign b2 = alucont[3] ? ~b:b; 
+  assign sum = a + b2 + alucont[3];
   assign slt = sum[31];
 
   always@(*)
-    case(alucont[1:0])
-      2'b00: result <= a & b;
-      2'b01: result <= a | b;
-      2'b10: result <= sum;
-      2'b11: result <= slt;
+    case(alucont[2:0])
+      3'b000: result <= a & b;
+      3'b001: result <= a | b;
+      3'b110: result <= sum;
+      3'b111: result <= slt;
+      3'b011: result <= ~(a | b); // nor
+      default: result <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
     endcase
 
   assign zero = (result == 32'b0);
@@ -122,5 +124,34 @@ module mux2 #(parameter WIDTH = 8)
               output [WIDTH-1:0] y);
 
   assign y = s ? d1 : d0; 
+
+endmodule
+
+// lb instruction
+module lb_mux (input [1:0] sel,
+               input [7:0] mux_input0, mux_input1, mux_input2, mux_input3,
+               output reg [7:0] mux_out);
+
+  always @(*) begin
+    case(sel)
+      2'b00: mux_out <= mux_input0;
+      2'b01: mux_out <= mux_input1;
+      2'b10: mux_out <= mux_input2;
+      2'b11: mux_out <= mux_input3;
+    endcase
+  end
+
+endmodule
+
+module sign_ext_24(input [7:0] data_in,
+                   output reg [31:0] data_out);
+              
+  always @(*) begin
+    data_out[7:0] <= data_in[7:0];
+    if (data_in[7])
+      data_out[31:8] <= 24'b111111111111111111111111;
+    else
+      data_out[31:8] <= 24'b000000000000000000000000;
+	end
 
 endmodule
